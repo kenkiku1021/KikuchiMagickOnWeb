@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Kikuchi Magick on Web</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/kikuchi_magick.css" >
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Kikuchi Magick on Web</a>
+        </div>
+      </div>
+    </nav>
+    
+    <div class="container" id="container" >
+    </div><!-- /.container -->
+
+    <footer class="footer">
+      <div class="container">
+        <p class="text-muted">
+	  ©Copyright Kikuchi Ken 2015
+	</p>
+      </div>
+    </footer>
+
+    <script type="text/template" id="select-file-template" >
+      <div class="row" >
+	<div class="col-xs-12" >
+	  <p>
+	    Webブラウザ上で写真の比較明コンポジットを行います。
+	    コンポジットしたい画像データ（JPEG形式）を，下の「元ファイル」の部分にドラッグ＆ドロップしてください。
+	  </p>
+	</div>
+      </div>
+      <div class="row" >
+	<div class="col-sm-12" >
+	  <div class="panel panel-default" id="drop-area-panel">
+	    <div class="panel-heading" >
+	      <h3 class="panel-title" >
+		元ファイル
+	      </h3>
+	    </div><!-- /.panel-heading -->
+	    <div class="panel-body" >
+	      <div class="drop-area" id="drop-area" >
+		<div class="form-group" >
+		  <label for="src-files" >元ファイル</label>
+		  <input type="file" id="src-files" accept='image/*' multiple >
+		</div>
+		<p>ここにファイルをドラッグ＆ドロップしてください。</p>
+	      </div>
+	    </div><!-- /.panel-body -->
+	  </div><!-- /.panel -->
+	</div><!-- /.col-md-6 -->
+      </div><!-- /.row -->
+      <div class="row" >
+	<div class="col-xs-12" >
+	  <div class="alert alert-warning" role="alert">
+	    <h4>注意</h4>
+	    <p>
+	      「Kikuchi Magick on Web」では，画像のコンポジットをすべてWebブラウザ内の処理で行っています。
+	      コンポジットするための画像データをWebサーバなどに送信することは一切行っておりません。
+	    </p>
+	  </div>
+	</div>
+      </div>
+      <div class="row" >
+	<div class="col-xs-12" >
+	  <div class="alert alert-info" role="alert">
+	    <h4>動作環境</h4>
+	    <p>
+	      下記の機能が動作するWebブラウザ
+	      （Google Chromeでの動作を確認しています。）
+	    </p>
+	    <ul>
+	      <li>HTML5 File API</li>
+	      <li>HTML5 Web WorkerおよびTransferable Objects</li>
+	    </ul>
+	  </div>
+	</div>
+      </div>
+    </script>
+    
+    <script type="text/template" id="loaded-template" >
+      <div class="row" >
+	<div class="col-sm-12" >
+	  <div class="alert alert-success" role="alert" id="loaded-message">
+	    <div class="row" >
+	      <div class="col-xs-12">
+		<p id="message" >コンポジットの準備が完了しました。</p>
+	      </div>
+	    </div>
+	    <div class="row" >
+	      <div class="col-xs-12" >
+		<button type="button" class="btn btn-primary" id="start-btn" >開始</button>
+		<button type="button" class="btn btn-default" id="abort-btn" disabled="disabled">中断</button>
+	      </div>
+	    </div><!-- /.row -->
+	    <div class="row progress-bar-row" >
+	      <div class="col-xs-12" >
+		<div class="progress">
+		  <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" style="width: 0%;" id="composite-progress">
+		  </div>
+		</div>
+	      </div>
+	    </div><!-- /.row -->
+	  </div>
+	</div><!-- /.col-sm-12 -->
+      </div><!-- /.row -->
+    </script>
+
+    <script type="text/template" id="result-template" >
+      <div class="row" >
+	<div class="panel panel-default" >
+	  <div class="panel-heading" >
+	    <h3 class="panel-title" >コンポジットが完了しました</h3>
+	  </div>
+	  <div class="panel-body">
+	    <p>画像を右クリックし，「名前をつけて画像を保存」で保存してください。</p>
+	    <div class="result-image" id="result-image" ></div>
+	  </div>
+	  <div class="panel-footer" >
+	    <div class="row" >
+	      <div class="col-xs-6 col-xs-offset-6 col-sm-2 col-sm-offset-10" >
+		<button type="button" class="btn btn-default btn-block" id="init-button" >もう一度</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </script>
+    
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js" ></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="js/underscore-min.js" ></script>
+    <script src="js/drag_and_drop.js" ></script>
+    <script src="js/main.js" ></script>
+  </body>
+</html>
