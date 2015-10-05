@@ -83,19 +83,23 @@ var CompositeController = function(files) {
 	    this.currentImageIndex++;
 	    reader.onload = function() {
 		var img = new Image();
+		img.onload = function() {
+		    if(!controller.canvas) {
+			controller.canvas = document.createElement("canvas");
+			controller.canvas.width = img.width;
+			controller.canvas.height = img.height;
+		    }
+		    var context = controller.canvas.getContext("2d");
+		    context.drawImage(img, 0, 0,
+				      controller.canvas.width,
+				      controller.canvas.height);
+		    var imageData = context.getImageData(0, 0,
+							 controller.canvas.width,
+							 controller.canvas.height);
+		    controller.worker.postMessage(imageData,
+						  [imageData.data.buffer]);
+		};
 		img.src = reader.result;
-		if(!controller.canvas) {
-		    controller.canvas = document.createElement("canvas");
-		    controller.canvas.width = img.width;
-		    controller.canvas.height = img.height;
-		}
-		var context = controller.canvas.getContext("2d");
-		context.drawImage(img, 0, 0);
-		var imageData = context.getImageData(0, 0,
-						     controller.canvas.width,
-						     controller.canvas.height);
-		controller.worker.postMessage(imageData,
-					      [imageData.data.buffer]);
 	    };
 	}
 	else {
